@@ -1,0 +1,1680 @@
+DECLARE @BEGINDATE datetime = '2020-04-01'
+DECLARE @ENDDATE datetime = '2021-03-31'
+DECLARE @RunDate datetime = '2021-04-01'
+DECLARE @RecordType char(1) = 'T'
+--DECLARE @RunDate datetime = '2020-02-01'
+--DECLARE @FYMONTH int = 1
+;
+
+--WITH CensusRecords
+--AS
+--(
+/* get snapshot data first for turnover over dataset */
+
+WITH Snap
+AS (
+	SELECT [HASH_ID]
+		,[EMPLOYEE_ID]
+		,[RowInsertDateTime]
+		,[COMPANY]
+		,[COMPANY_NAME]
+		,[EMPLOYEE_AHSN]
+		,[SOCIAL_NUMBER]
+		,[EFFECTIVE_CHANGE_DATE]
+		,[NAME_PREFIX]
+		,[NAME_SUFFIX]
+		,[FIRST_NAME]
+		,[LAST_NAME]
+		,[MIDDLE_NAME]
+		,[PREFERRED_NAME]
+		,[EMPLOYEE_NAME]
+		,[DEPARTMENT]
+		,[DEPARTMENT_NAME]
+		--,[DEPARTMENT_NAME]
+		--,
+		,[JOB_CODE]
+		,[WORK_ASSIGNMENT]
+		,[JOB_TITLE]
+		,[JOB_CLASS]
+		,[POSITION_CODE]
+		,[POSITION_DESCRIPTION]
+		,[PROCESS_LEVEL]
+		,[PROCESS_LEVEL_NAME]
+		,[ETHNICITY_CODE]
+		,[ETHNICITY_DESCRIPTION]
+		,[TAX_ADDRESS_1]
+		,[TAX_ADDRESS_2]
+		,[TAX_CITY]
+		,[TAX_STATE]
+		,[TAX_COUNTY]
+		,[TAX_COUNTRY_CODE]
+		,[TAX_COUNTRY_DESCRIPTION]
+		,[TAX_ZIP]
+		,[TAX_HOME_PHONE]
+		,[MAIL_ADDRESS_1]
+		,[MAIL_ADDRESS_2]
+		,[MAIL_CITY]
+		,[MAIL_STATE]
+		,[MAIL_COUNTY]
+		,[MAIL_COUNTRY_CODE]
+		,[MAIL_COUNTRY_DESCRIPTION]
+		,[MAIL_ZIP]
+		,[MAIL_HOME_PHONE]
+		,[GENDER]
+		,[GENDER_DESCRIPTION]
+		,[MARITAL_STATUS]
+		,[MARITAL_STATUS_DESCRIPTION]
+		,[SHIFT]
+		,[LOCATION_CODE]
+		,[LOCATION_DESCRIPTION]
+		,[ACTION_CODE]
+		,[ACTION_NUMBER]
+		,[ACTION_TYPE]
+		,[ACTION_DESCRIPTION]
+		,[REASON]
+		,[REASON_DESCRIPTION]
+		,[ACTION_DATE]
+		,[EFFECTIVE_DATE]
+		,[RELATIONSHIP_STATUS]
+		,[STATUS_DESCRIPTION]
+		,[HIRE_DATE]
+		,[REHIRE_DATE]
+		,[BIRTH_DATE]
+		,[SERVICE_DATE]
+		,[REVIEW_DATE]
+		,[REVIEW_CODE]
+		,[EMAIL_ADDRESS]
+		,[SUPERVISOR_CODE]
+		,[SUPERVISOR_FIRST_NAME]
+		,[SUPERVISOR_LAST_NAME]
+		,[SUPERVISOR_FULL_NAME]
+		,[SUPERVISOR_POSITION]
+		,[SUPERVISOR_EMP_ID]
+		,[SUPERVISOR_EMAIL]
+		,[SUPERVISOR_AHSN]
+		,[SUPERVISOR_SOCIAL_NUM]
+		,[INDIRECT_SUPERVISOR_CODE]
+		,[INDIRECT_SUPERVISOR_FIRST_NAME]
+		,[INDIRECT_SUPERVISOR_LAST_NAME]
+		,[INDIRECT_SUPERVISOR_FULL_NAME]
+		,[INDIRECT_SUPERVISOR_POSITION]
+		,[INDIRECT_SUPERVISOR_EMP_ID]
+		,[INDIRECT_SUPERVISOR_EMAIL]
+		,[INDIRECT_SUPERVISOR_AHSN]
+		,[INDIRECT_SUPERVISOR_SOCIAL_NUM]
+		,[PAY_RATE]
+		,[FTE]
+		,[TOTAL_FTE]
+		,[WORK_SCHEDULE]
+		,[WORK_SCHEDULE_DESCRIPTION]
+		,[FLSA_STATUS]
+		--,[AGE]
+		,[WORK_PHONE]
+		,[SCHEDULE]
+		,[SCHEDULE_DESCRIPTION]
+		,[PAY_PLAN_CODE]
+		,[PAY_PLAN_DESCRIPTION]
+		,[VETERAN]
+		,[GRADE]
+		,[GRADE_DESCRIPTION]
+		,[EEO_CATEGORY]
+		,[EEO_CATEGORY_DESCRIPTION]
+		,[PROCESS_DEPARTMENT]
+		,[FULL_OR_PART_TIME_FLAG]
+		,[TERMINATION_DATE]
+		,[EEO_GROUP_CODE]
+		,[EEO_GROUP_DESCRIPTION]
+		,[COMPENSATION_GROUPING]
+		,[KEY_POSITIONS_CODE]
+		,[KEY_POSITIONS_DESCRIPTION]
+		,[MANAGER_LEVEL_CODE]
+		,[MANAGER_LEVEL_DESCRIPTION]
+		,[REASON_2]
+		,[REASON_DESCRIPTION_2]
+		,[RELATIONSHIP_TO_ORGANIZATION]
+		,[IS_PRIMARY_SUPERVISOR]
+		,[ANNIVERSARY_DATE]
+		,[DISABILITY]
+		,[ELIGIBLE_FOR_REHIRE]
+		,[NORTON_TOTAL_YRS_DIRECT_EXP]
+		,[COST_CENTER]
+		,[COST_CENTER_DESCRIPTION]
+		,[NORTON_PENDING_YRS_EXP]
+		,[FACILITY]
+		,[FACILITY_NAME]
+		,[GenerationName]
+		,[CostCenterName]
+		--,CostCenterName
+		,[SubfunctionName]
+		,[FunctionName]
+		,[SectionName]
+		,[EntityName]
+		,[DivisionName]
+		,[OrganizationName]
+	
+	FROM (
+		SELECT
+	
+			[HASH_ID]
+			,[EMPLOYEE_ID]
+			,[RowInsertDateTime]
+			,[COMPANY]
+			,[COMPANY_NAME]
+			,[EMPLOYEE_AHSN]
+			,[SOCIAL_NUMBER]
+			,[EFFECTIVE_CHANGE_DATE]
+			,[NAME_PREFIX]
+			,[NAME_SUFFIX]
+			,[FIRST_NAME]
+			,[LAST_NAME]
+			,[MIDDLE_NAME]
+			,[PREFERRED_NAME]
+			,[EMPLOYEE_NAME]
+			,[DEPARTMENT]
+			--,[DEPARTMENT_NAME]
+			,SUBSTRING([DEPARTMENT_NAME], CHARINDEX('-', [DEPARTMENT_NAME]) + 1, 60) AS [DEPARTMENT_NAME]
+			--,DESCRIPTION as HRODESCRIPTION
+			
+			,[JOB_CODE]
+			,[WORK_ASSIGNMENT]
+			,[JOB_TITLE]
+			,[JOB_CLASS]
+			,[POSITION_CODE]
+			,[POSITION_DESCRIPTION]
+			,[PROCESS_LEVEL]
+			,[PROCESS_LEVEL_NAME]
+			,[ETHNICITY_CODE]
+			,[ETHNICITY_DESCRIPTION]
+			,[TAX_ADDRESS_1]
+			,[TAX_ADDRESS_2]
+			,[TAX_CITY]
+			,[TAX_STATE]
+			,[TAX_COUNTY]
+			,[TAX_COUNTRY_CODE]
+			,[TAX_COUNTRY_DESCRIPTION]
+			,[TAX_ZIP]
+			,[TAX_HOME_PHONE]
+			,[MAIL_ADDRESS_1]
+			,[MAIL_ADDRESS_2]
+			,[MAIL_CITY]
+			,[MAIL_STATE]
+			,[MAIL_COUNTY]
+			,[MAIL_COUNTRY_CODE]
+			,[MAIL_COUNTRY_DESCRIPTION]
+			,[MAIL_ZIP]
+			,[MAIL_HOME_PHONE]
+			,[GENDER]
+			,[GENDER_DESCRIPTION]
+			,[MARITAL_STATUS]
+			,[MARITAL_STATUS_DESCRIPTION]
+			,[SHIFT]
+			,[LOCATION_CODE]
+			,[LOCATION_DESCRIPTION]
+			,[ACTION_CODE]
+			,[ACTION_NUMBER]
+			,[ACTION_TYPE]
+			,[ACTION_DESCRIPTION]
+			,[REASON]
+			,[REASON_DESCRIPTION]
+			,[ACTION_DATE]
+			,[EFFECTIVE_DATE]
+			,[RELATIONSHIP_STATUS]
+			,[STATUS_DESCRIPTION]
+			,[HIRE_DATE]
+			,[REHIRE_DATE]
+			,[BIRTH_DATE]
+			,[SERVICE_DATE]
+			,[REVIEW_DATE]
+			,[REVIEW_CODE]
+			,[EMAIL_ADDRESS]
+			,[SUPERVISOR_CODE]
+			,[SUPERVISOR_FIRST_NAME]
+			,[SUPERVISOR_LAST_NAME]
+			,[SUPERVISOR_FULL_NAME]
+			,[SUPERVISOR_POSITION]
+			,[SUPERVISOR_EMP_ID]
+			,[SUPERVISOR_EMAIL]
+			,[SUPERVISOR_AHSN]
+			,[SUPERVISOR_SOCIAL_NUM]
+			,[INDIRECT_SUPERVISOR_CODE]
+			,[INDIRECT_SUPERVISOR_FIRST_NAME]
+			,[INDIRECT_SUPERVISOR_LAST_NAME]
+			,[INDIRECT_SUPERVISOR_FULL_NAME]
+			,[INDIRECT_SUPERVISOR_POSITION]
+			,[INDIRECT_SUPERVISOR_EMP_ID]
+			,[INDIRECT_SUPERVISOR_EMAIL]
+			,[INDIRECT_SUPERVISOR_AHSN]
+			,[INDIRECT_SUPERVISOR_SOCIAL_NUM]
+			,[PAY_RATE]
+			,[FTE]
+			,[TOTAL_FTE]
+			,[WORK_SCHEDULE]
+			,[WORK_SCHEDULE_DESCRIPTION]
+			,[FLSA_STATUS]
+			--,[AGE]
+			,[WORK_PHONE]
+			,[SCHEDULE]
+			,[SCHEDULE_DESCRIPTION]
+			,[PAY_PLAN_CODE]
+			,[PAY_PLAN_DESCRIPTION]
+			,[VETERAN]
+			,[GRADE]
+			,[GRADE_DESCRIPTION]
+			,[EEO_CATEGORY]
+			,[EEO_CATEGORY_DESCRIPTION]
+			,[PROCESS_DEPARTMENT]
+			,[FULL_OR_PART_TIME_FLAG]
+			,[TERMINATION_DATE]
+			,[EEO_GROUP_CODE]
+			,[EEO_GROUP_DESCRIPTION]
+			,[COMPENSATION_GROUPING]
+			,[KEY_POSITIONS_CODE]
+			,[KEY_POSITIONS_DESCRIPTION]
+			,[MANAGER_LEVEL_CODE]
+			,[MANAGER_LEVEL_DESCRIPTION]
+			,[REASON_2]
+			,[REASON_DESCRIPTION_2]
+			,[RELATIONSHIP_TO_ORGANIZATION]
+			,[IS_PRIMARY_SUPERVISOR]
+			,[ANNIVERSARY_DATE]
+			,[DISABILITY]
+			,[ELIGIBLE_FOR_REHIRE]
+			,[NORTON_TOTAL_YRS_DIRECT_EXP]
+			,[COST_CENTER]
+			--,[COST_CENTER_DESCRIPTION]
+			,SUBSTRING([COST_CENTER_DESCRIPTION], 1, 60) AS [COST_CENTER_DESCRIPTION]
+			,[NORTON_PENDING_YRS_EXP]
+			,[FACILITY]
+			,[FACILITY_NAME]
+			,[GenerationName]
+			--,[CostCenterName]
+			,SUBSTRING(CostCenterName, CHARINDEX('-', CostCenterName) + 1, 60) AS CostCenterName
+			,[SubfunctionName]
+			,[FunctionName]
+			,[SectionName]
+			,[EntityName]
+			,[DivisionName]
+			,[OrganizationName]
+		--,ROW_NUMBER() OVER(PARTITION BY EMPLOYEE_ID ORDER BY RowInsertDateTime DESC) as RowNum do in derived query
+		FROM [HRIS_Views].[Employee].[vwFactEmployeeCurrentViewAllEmployee_Snapshot] AS es WITH (NOLOCK)
+		--INNER JOIN 
+		--(
+		--SELECT MAX(HASH_ID) as HASH_ID, EMPLOYEE_ID, MAX(RowInsertDatetime) as MostRecentRecord 
+		--FROM [HRIS_Views].[Employee].[vwFactEmployeeCurrentViewAllEmployee_Snapshot] as mr WITH (NOLOCK)
+		--WHERE 
+		--EMPLOYEE_ID = 7
+		--GROUP BY EMPLOYEE_ID
+		--)
+		--WHERE CASt(KEY_POSITIONS_CODE as varchar(10))  <> CAST(NORTONTURNOVERCATEGORY  as varchar(10))
+		WHERE 1 = 1
+			--AND RowInsertDateTime < @RunDate 
+			--AND TERMINATION_DATE < @RunDate
+			
+		) AS d
+	)
+
+	/* BEGIN MAIN QUERY */
+SELECT
+RecordType
+,AHSN
+,EMPLOYEE_ID as Employee
+,FIRST_NAME FirstName
+,LAST_NAME as LastName
+,EffectiveDate
+,Action_Date
+,BeginDate = @BEGINDATE
+,RehireDate
+,Reason
+,ReasonDescription
+,ProcessLevel
+,[Process Level Name]
+,Department
+,[Department Name]
+,FTE
+,Location
+,KeyPosition
+,[KeyPosition Description]
+,TermType
+,ServiceMonths
+,Ethnicity
+,[FLSA Status]
+,[Full time or Part Time]
+,[Position Code]
+,[Position Description]
+,Job
+,[Job Description]
+,COST_CENTER
+,RELATIONSHIP_STATUS
+,Hire_Date
+,REHIRE_Date
+,PULLDATE
+,BIRTH_DATE
+,AGE
+--,AGERANGE
+,CASE 
+WHEN AGE < 17 THEN '<17'
+WHEN AGE BETWEEN 18 AND 24 THEN  '18-24'
+WHEN AGE BETWEEN 25 and 34 THEN '25-34'
+WHEN AGE BETWEEN 35 and 44 THEN '35-44'
+WHEN AGE BETWEEN 45 AND 54 THEN '45-54'
+WHEN AGE BETWEEN 55 AND 59 THEN '55-59'
+WHEN AGE BETWEEN 60 AND 64 THEN '60-64'
+WHEN AGE >= 65 THEN '65+'
+END AS AGERANGE
+FROM
+(
+
+SELECT
+/* Begins */
+--/* columns to complete BEHT
+ RECORDTYPE = 'B'
+, EMPLOYEE_AHSN as AHSN
+,EMPLOYEE_ID
+,FIRST_NAME
+,LAST_NAME
+,EffectiveDate= CAST(@BEGINDATE AS date)
+,Action_Date = NULL
+,BeginDate = DATEADD(d, 1, DATEADD(MM, -1, CAST(@BEGINDATE AS date)))
+,CAST(COALESCE(REHIRE_DATE, HIRE_DATE) as DATE) RehireDate
+,Reason = NULL
+,ReasonDescription = NULL
+,PROCESS_LEVEL as ProcessLevel 
+,PROCESS_LEVEL_NAME as [Process Level Name]
+,Department
+,DEPARTMENT_NAME as [Department Name]
+,FTE
+,LOCATION_DESCRIPTION as Location
+--,EntityName AS Location
+,KEY_POSITIONS_CODE as  KeyPosition
+,KEY_POSITIONS_DESCRIPTION AS [KeyPosition Description]
+,TermType = null
+,ServiceMonths = nULL
+,ETHNICITY_DESCRIPTION as Ethnicity
+,FLSA_STATUS as [FLSA Status]
+,FULL_OR_PART_TIME_FLAG as [Full time or Part Time]
+,POSITION_CODE as  [Position Code]
+,POSITION_DESCRIPTION as [Position Description]
+, JOB_CODE Job
+,JOB_TITLE [Job Description]
+--*/ columns to complete BEHT
+--,JOB_CODE
+--,PROCESS_LEVEL
+--,DEPARTMENT
+,COST_CENTER
+--,DEPARTMENT_NAME
+--,JOB_TITLE
+--,EMPLOYEE_AHSN
+--,EMPLOYEE_ID
+,RELATIONSHIP_STATUS
+--,EffectiveDate= CAST(@BEGINDATE AS date)
+--,CAST(COALESCE(REHIRE_DATE, HIRE_DATE) as DATE) as HIREREHIREDATE
+,CAST(HIRE_DATE as date) as Hire_Date
+,CAST(REHIRE_DATE as date) as REHIRE_Date
+,CAST(GETDATE() as date) as PULLDATE
+,CAST(BIRTH_DATE as DATE) as BIRTH_DATE
+,AGE
+,CASE 
+WHEN AGE < 17 THEN '<17'
+WHEN AGE BETWEEN 18 AND 24 THEN  '18-24'
+WHEN AGE BETWEEN 25 and 34 THEN '25-34'
+WHEN AGE BETWEEN 35 and 44 THEN '35-44'
+WHEN AGE BETWEEN 45 AND 54 THEN '45-54'
+WHEN AGE BETWEEN 55 AND 59 THEN '55-59'
+WHEN AGE BETWEEN 60 AND 64 THEN '60-64'
+WHEN AGE >= 65 THEN '65+'
+END AS AGERANGE
+
+	FROM
+	(
+SELECT 
+--distinct
+--EMPLOYEE_ID
+----,RowInsertDateTime  
+--,COUNT(*)
+[HASH_ID]
+      ,[EMPLOYEE_ID]
+      ,[RowInsertDateTime]
+      ,[COMPANY]
+      ,[COMPANY_NAME]
+      ,[EMPLOYEE_AHSN]
+      ,[SOCIAL_NUMBER]
+      ,[EFFECTIVE_CHANGE_DATE]
+      ,[NAME_PREFIX]
+      ,[NAME_SUFFIX]
+      ,[FIRST_NAME]
+      ,[LAST_NAME]
+      ,[MIDDLE_NAME]
+      ,[PREFERRED_NAME]
+      ,[EMPLOYEE_NAME]
+      ,[DEPARTMENT]
+      --,[DEPARTMENT_NAME]
+	  ,SUBSTRING([DEPARTMENT_NAME], CHARINDEX('-', [DEPARTMENT_NAME]) +1, 60) as [DEPARTMENT_NAME]
+      ,[JOB_CODE]
+      ,[WORK_ASSIGNMENT]
+      ,[JOB_TITLE]
+      ,[JOB_CLASS]
+      ,[POSITION_CODE]
+      ,[POSITION_DESCRIPTION]
+      ,[PROCESS_LEVEL]
+      ,[PROCESS_LEVEL_NAME]
+      ,[ETHNICITY_CODE]
+      ,[ETHNICITY_DESCRIPTION]
+      ,[TAX_ADDRESS_1]
+      ,[TAX_ADDRESS_2]
+      ,[TAX_CITY]
+      ,[TAX_STATE]
+      ,[TAX_COUNTY]
+      ,[TAX_COUNTRY_CODE]
+      ,[TAX_COUNTRY_DESCRIPTION]
+      ,[TAX_ZIP]
+      ,[TAX_HOME_PHONE]
+      ,[MAIL_ADDRESS_1]
+      ,[MAIL_ADDRESS_2]
+      ,[MAIL_CITY]
+      ,[MAIL_STATE]
+      ,[MAIL_COUNTY]
+      ,[MAIL_COUNTRY_CODE]
+      ,[MAIL_COUNTRY_DESCRIPTION]
+      ,[MAIL_ZIP]
+      ,[MAIL_HOME_PHONE]
+      ,[GENDER]
+      ,[GENDER_DESCRIPTION]
+      ,[MARITAL_STATUS]
+      ,[MARITAL_STATUS_DESCRIPTION]
+      ,[SHIFT]
+      ,[LOCATION_CODE]
+      ,[LOCATION_DESCRIPTION]
+      ,[ACTION_CODE]
+      ,[ACTION_NUMBER]
+      ,[ACTION_TYPE]
+      ,[ACTION_DESCRIPTION]
+      ,[REASON]
+      ,[REASON_DESCRIPTION]
+      ,[ACTION_DATE]
+      ,[EFFECTIVE_DATE]
+      ,[RELATIONSHIP_STATUS]
+      ,[STATUS_DESCRIPTION]
+      ,[HIRE_DATE]
+      ,[REHIRE_DATE]
+      ,[BIRTH_DATE]
+      ,[SERVICE_DATE]
+      ,[REVIEW_DATE]
+      ,[REVIEW_CODE]
+      ,[EMAIL_ADDRESS]
+      ,[SUPERVISOR_CODE]
+      ,[SUPERVISOR_FIRST_NAME]
+      ,[SUPERVISOR_LAST_NAME]
+      ,[SUPERVISOR_FULL_NAME]
+      ,[SUPERVISOR_POSITION]
+      ,[SUPERVISOR_EMP_ID]
+      ,[SUPERVISOR_EMAIL]
+      ,[SUPERVISOR_AHSN]
+      ,[SUPERVISOR_SOCIAL_NUM]
+      ,[INDIRECT_SUPERVISOR_CODE]
+      ,[INDIRECT_SUPERVISOR_FIRST_NAME]
+      ,[INDIRECT_SUPERVISOR_LAST_NAME]
+      ,[INDIRECT_SUPERVISOR_FULL_NAME]
+      ,[INDIRECT_SUPERVISOR_POSITION]
+      ,[INDIRECT_SUPERVISOR_EMP_ID]
+      ,[INDIRECT_SUPERVISOR_EMAIL]
+      ,[INDIRECT_SUPERVISOR_AHSN]
+      ,[INDIRECT_SUPERVISOR_SOCIAL_NUM]
+      ,[PAY_RATE]
+      ,[FTE]
+      ,[TOTAL_FTE]
+      ,[WORK_SCHEDULE]
+      ,[WORK_SCHEDULE_DESCRIPTION]
+      ,[FLSA_STATUS]
+      --,[AGE]
+      ,[WORK_PHONE]
+      ,[SCHEDULE]
+      ,[SCHEDULE_DESCRIPTION]
+      ,[PAY_PLAN_CODE]
+      ,[PAY_PLAN_DESCRIPTION]
+      ,[VETERAN]
+      ,[GRADE]
+      ,[GRADE_DESCRIPTION]
+      ,[EEO_CATEGORY]
+      ,[EEO_CATEGORY_DESCRIPTION]
+      ,[PROCESS_DEPARTMENT]
+      ,[FULL_OR_PART_TIME_FLAG]
+      ,[TERMINATION_DATE]
+      ,[EEO_GROUP_CODE]
+      ,[EEO_GROUP_DESCRIPTION]
+      ,[COMPENSATION_GROUPING]
+      ,[KEY_POSITIONS_CODE]
+      ,[KEY_POSITIONS_DESCRIPTION]
+      ,[MANAGER_LEVEL_CODE]
+      ,[MANAGER_LEVEL_DESCRIPTION]
+      ,[REASON_2]
+      ,[REASON_DESCRIPTION_2]
+      ,[RELATIONSHIP_TO_ORGANIZATION]
+      ,[IS_PRIMARY_SUPERVISOR]
+      ,[ANNIVERSARY_DATE]
+      ,[DISABILITY]
+      ,[ELIGIBLE_FOR_REHIRE]
+      ,[NORTON_TOTAL_YRS_DIRECT_EXP]
+      ,[COST_CENTER]
+      --,[COST_CENTER_DESCRIPTION]
+	  ,SUBSTRING([COST_CENTER_DESCRIPTION], 1, 60) as [COST_CENTER_DESCRIPTION]
+      ,[NORTON_PENDING_YRS_EXP]
+      ,[FACILITY]
+      ,[FACILITY_NAME]
+      ,[GenerationName]
+      --,[CostCenterName]
+	,SUBSTRING(CostCenterName, CHARINDEX('-', CostCenterName) +1, 60) as CostCenterName
+      ,[SubfunctionName]
+      ,[FunctionName]
+      ,[SectionName]
+      ,[EntityName]
+      ,[DivisionName]
+      ,[OrganizationName]
+	  ,ROW_NUMBER() OVER(PARTITION BY EMPLOYEE_ID ORDER BY RowInsertDateTime DESC) as RowNum
+	  ,CASE WHEN dateadd(year, datediff (year, BIRTH_DATE, getdate()), BIRTH_DATE) > getdate()
+            THEN datediff(year, BIRTH_DATE, getdate()) - 1
+            ELSE datediff(year, BIRTH_DATE, getdate())
+       END as AGE
+--,NULL as AGE
+  FROM [HRIS_Views].[Employee].[vwFactEmployeeCurrentViewAllEmployee_Snapshot] as es WITH (NOLOCK)
+  --INNER JOIN 
+  --(
+  --SELECT MAX(HASH_ID) as HASH_ID, EMPLOYEE_ID, MAX(RowInsertDatetime) as MostRecentRecord 
+  --FROM [HRIS_Views].[Employee].[vwFactEmployeeCurrentViewAllEmployee_Snapshot] as mr WITH (NOLOCK)
+  --WHERE 
+  --EMPLOYEE_ID = 7
+  --GROUP BY EMPLOYEE_ID
+
+  
+  --)
+  --WHERE CAST(KEY_POSITIONS_CODE as varchar(10))  <> CAST(NORTONTURNOVERCATEGORY  as varchar(10))
+  WHERE 1=1
+  AND RowInsertDateTime < @BEGINDATE 
+  --AND TERMINATION_DATE < @RunDate
+  --and es.e
+  --AND TERMINATION_DATE >= '2020-01-01' 
+  --AND TERMINATION_DATE < @RunDate -- terms cummulative to run date                                  
+ --AND RELATIONSHIP_STATUS NOT IN ('ACTIVE', 'LEAVE', 'ADMIN LEAVE', 'JOB PLACEMENT')
+ ----AND REASON
+  AND RELATIONSHIP_TO_ORGANIZATION = 'EMPLOYEE'
+ -- AND KEY_POSITIONS_DESCRIPTION <> 'Excluded Positions'
+ -- AND Right(KEY_POSITIONS_DESCRIPTION, 10) <> '(Registry)'
+  --AND (HIRE_DATE >= '2019-01-01' OR REHIRE_DATE >= '2019-01-01')
+
+  )
+  as d
+  WHERE Rownum = 1
+  --and EMPLOYEE_ID = 139
+  AND [RELATIONSHIP_STATUS]  NOT IN ('TERM PENDING', 'TERMINATED', 'RETIREDWPAY', 'SEVERANCE'            )
+  AND EMPLOYEE_ID NOT IN 
+  ( --exclude employees late termed in 2020 for 2019 as there were not actually here as of 1/1/2020
+  SELECT EMPLOYEE_ID FROM [emptrk].[tblFactDwDtEmployeeHRHTTP] (NOLOCK)
+WHERE EventType = 'Termination' 
+AND EffectiveDate < '2021-04-01'
+AND SystemDate >='2021-01-01'
+  )
+
+
+
+  --ORDER BY EMPLOYEE_ID
+
+  UNION ALL
+
+
+SELECT
+/* Ends */
+/*
+ RECORDTYPE = 'E'
+,JOB_CODE
+,PROCESS_LEVEL
+,DEPARTMENT
+,COST_CENTER
+,DEPARTMENT_NAME
+,JOB_TITLE
+,EMPLOYEE_AHSN
+,EMPLOYEE_ID
+,RELATIONSHIP_STATUS
+,EFFECTIVE_DATE = CAST(@ENDDATE as Date) 
+,CAST(COALESCE(REHIRE_DATE, HIRE_DATE)as DATE) as HIREREHIREDATE
+,CAST(HIRE_DATE as DATE) HIRE_DATE
+,CAST(REHIRE_DATE as DATE) as REHIRE_DATE
+,CAST(GETDATE()as DATE) as PULLDATE
+,CAST(BIRTH_DATE as DATE) as BIRTH_DATE
+--,CASE WHEN dateadd(year, datediff (year, BIRTH_DATE, getdate()), BIRTH_DATE) > getdate()
+--            THEN datediff(year, BIRTH_DATE, getdate()) - 1
+--            ELSE datediff(year, BIRTH_DATE, getdate())
+--       END as AGE
+--,NULL as AGE
+,CASE 
+WHEN AGE < 17 THEN '<17'
+WHEN AGE BETWEEN 18 AND 24 THEN  '18-24'
+WHEN AGE BETWEEN 25 and 34 THEN '25-34'
+WHEN AGE BETWEEN 35 and 44 THEN '35-44'
+WHEN AGE BETWEEN 45 AND 54 THEN '45-54'
+WHEN AGE BETWEEN 55 AND 59 THEN '55-59'
+WHEN AGE BETWEEN 60 AND 64 THEN '60-64'
+WHEN AGE >= 65 THEN '65+'
+END AS AGERANGE
+,REASON as Reason
+,REASON_DESCRIPTION
+,LOCATION_DESCRIPTION
+,FTE
+,PROCESS_LEVEL_NAME
+,NULL as TERMTYPE	
+*/
+RECORDTYPE = 'E'
+, EMPLOYEE_AHSN as AHSN
+,EMPLOYEE_ID
+,FIRST_NAME
+,LAST_NAME
+,EffectiveDate= CAST(@BEGINDATE AS date)
+,Action_Date = NULL
+,BeginDate = DATEADD(d, 1, DATEADD(MM, -1, CAST(@BEGINDATE AS date)))
+,CAST(COALESCE(REHIRE_DATE, HIRE_DATE) as DATE) RehireDate
+,Reason = NULL
+,ReasonDescription = NULL
+,PROCESS_LEVEL as ProcessLevel 
+,PROCESS_LEVEL_NAME as [Process Level Name]
+,Department
+,DEPARTMENT_NAME as [Department Name]
+,FTE
+,LOCATION_DESCRIPTION as Location
+--,EntityName AS Location
+,KEY_POSITIONS_CODE as  KeyPosition
+,KEY_POSITIONS_DESCRIPTION AS [KeyPosition Description]
+,TermType = null
+,ServiceMonths = nULL
+,ETHNICITY_DESCRIPTION as Ethnicity
+,FLSA_STATUS as [FLSA Status]
+,FULL_OR_PART_TIME_FLAG as [Full time or Part Time]
+,POSITION_CODE as  [Position Code]
+,POSITION_DESCRIPTION as [Position Description]
+, JOB_CODE Job
+,JOB_TITLE [Job Description]
+--*/ columns to complete BEHT
+--,JOB_CODE
+--,PROCESS_LEVEL
+--,DEPARTMENT
+,COST_CENTER
+--,DEPARTMENT_NAME
+--,JOB_TITLE
+--,EMPLOYEE_AHSN
+--,EMPLOYEE_ID
+,RELATIONSHIP_STATUS
+--,EffectiveDate= CAST(@BEGINDATE AS date)
+--,CAST(COALESCE(REHIRE_DATE, HIRE_DATE) as DATE) as HIREREHIREDATE
+,CAST(HIRE_DATE as date) as Hire_Date
+,CAST(REHIRE_DATE as date) as REHIRE_Date
+,CAST(GETDATE() as date) as PULLDATE
+,CAST(BIRTH_DATE as DATE) as BIRTH_DATE
+,AGE
+,CASE 
+WHEN AGE < 17 THEN '<17'
+WHEN AGE BETWEEN 18 AND 24 THEN  '18-24'
+WHEN AGE BETWEEN 25 and 34 THEN '25-34'
+WHEN AGE BETWEEN 35 and 44 THEN '35-44'
+WHEN AGE BETWEEN 45 AND 54 THEN '45-54'
+WHEN AGE BETWEEN 55 AND 59 THEN '55-59'
+WHEN AGE BETWEEN 60 AND 64 THEN '60-64'
+WHEN AGE >= 65 THEN '65+'
+END AS AGERANGE
+	FROM
+	(
+SELECT 
+--distinct
+--EMPLOYEE_ID
+----,RowInsertDateTime  
+--,COUNT(*)
+[HASH_ID]
+      ,[EMPLOYEE_ID]
+      ,[RowInsertDateTime]
+      ,[COMPANY]
+      ,[COMPANY_NAME]
+      ,[EMPLOYEE_AHSN]
+      ,[SOCIAL_NUMBER]
+      ,[EFFECTIVE_CHANGE_DATE]
+      ,[NAME_PREFIX]
+      ,[NAME_SUFFIX]
+      ,[FIRST_NAME]
+      ,[LAST_NAME]
+      ,[MIDDLE_NAME]
+      ,[PREFERRED_NAME]
+      ,[EMPLOYEE_NAME]
+      ,[DEPARTMENT]
+      --,[DEPARTMENT_NAME]
+	  ,SUBSTRING([DEPARTMENT_NAME], CHARINDEX('-', [DEPARTMENT_NAME]) +1, 60) as [DEPARTMENT_NAME]
+      ,[JOB_CODE]
+      ,[WORK_ASSIGNMENT]
+      ,[JOB_TITLE]
+      ,[JOB_CLASS]
+      ,[POSITION_CODE]
+      ,[POSITION_DESCRIPTION]
+      ,[PROCESS_LEVEL]
+      ,[PROCESS_LEVEL_NAME]
+      ,[ETHNICITY_CODE]
+      ,[ETHNICITY_DESCRIPTION]
+      ,[TAX_ADDRESS_1]
+      ,[TAX_ADDRESS_2]
+      ,[TAX_CITY]
+      ,[TAX_STATE]
+      ,[TAX_COUNTY]
+      ,[TAX_COUNTRY_CODE]
+      ,[TAX_COUNTRY_DESCRIPTION]
+      ,[TAX_ZIP]
+      ,[TAX_HOME_PHONE]
+      ,[MAIL_ADDRESS_1]
+      ,[MAIL_ADDRESS_2]
+      ,[MAIL_CITY]
+      ,[MAIL_STATE]
+      ,[MAIL_COUNTY]
+      ,[MAIL_COUNTRY_CODE]
+      ,[MAIL_COUNTRY_DESCRIPTION]
+      ,[MAIL_ZIP]
+      ,[MAIL_HOME_PHONE]
+      ,[GENDER]
+      ,[GENDER_DESCRIPTION]
+      ,[MARITAL_STATUS]
+      ,[MARITAL_STATUS_DESCRIPTION]
+      ,[SHIFT]
+      ,[LOCATION_CODE]
+      ,[LOCATION_DESCRIPTION]
+      ,[ACTION_CODE]
+      ,[ACTION_NUMBER]
+      ,[ACTION_TYPE]
+      ,[ACTION_DESCRIPTION]
+      ,[REASON]
+      ,[REASON_DESCRIPTION]
+      ,[ACTION_DATE]
+      ,[EFFECTIVE_DATE]
+      ,[RELATIONSHIP_STATUS]
+      ,[STATUS_DESCRIPTION]
+      ,[HIRE_DATE]
+      ,[REHIRE_DATE]
+      ,[BIRTH_DATE]
+      ,[SERVICE_DATE]
+      ,[REVIEW_DATE]
+      ,[REVIEW_CODE]
+      ,[EMAIL_ADDRESS]
+      ,[SUPERVISOR_CODE]
+      ,[SUPERVISOR_FIRST_NAME]
+      ,[SUPERVISOR_LAST_NAME]
+      ,[SUPERVISOR_FULL_NAME]
+      ,[SUPERVISOR_POSITION]
+      ,[SUPERVISOR_EMP_ID]
+      ,[SUPERVISOR_EMAIL]
+      ,[SUPERVISOR_AHSN]
+      ,[SUPERVISOR_SOCIAL_NUM]
+      ,[INDIRECT_SUPERVISOR_CODE]
+      ,[INDIRECT_SUPERVISOR_FIRST_NAME]
+      ,[INDIRECT_SUPERVISOR_LAST_NAME]
+      ,[INDIRECT_SUPERVISOR_FULL_NAME]
+      ,[INDIRECT_SUPERVISOR_POSITION]
+      ,[INDIRECT_SUPERVISOR_EMP_ID]
+      ,[INDIRECT_SUPERVISOR_EMAIL]
+      ,[INDIRECT_SUPERVISOR_AHSN]
+      ,[INDIRECT_SUPERVISOR_SOCIAL_NUM]
+      ,[PAY_RATE]
+      ,[FTE]
+      ,[TOTAL_FTE]
+      ,[WORK_SCHEDULE]
+      ,[WORK_SCHEDULE_DESCRIPTION]
+      ,[FLSA_STATUS]
+      --,[AGE]
+      ,[WORK_PHONE]
+      ,[SCHEDULE]
+      ,[SCHEDULE_DESCRIPTION]
+      ,[PAY_PLAN_CODE]
+      ,[PAY_PLAN_DESCRIPTION]
+      ,[VETERAN]
+      ,[GRADE]
+      ,[GRADE_DESCRIPTION]
+      ,[EEO_CATEGORY]
+      ,[EEO_CATEGORY_DESCRIPTION]
+      ,[PROCESS_DEPARTMENT]
+      ,[FULL_OR_PART_TIME_FLAG]
+      ,[TERMINATION_DATE]
+      ,[EEO_GROUP_CODE]
+      ,[EEO_GROUP_DESCRIPTION]
+      ,[COMPENSATION_GROUPING]
+      ,[KEY_POSITIONS_CODE]
+      ,[KEY_POSITIONS_DESCRIPTION]
+      ,[MANAGER_LEVEL_CODE]
+      ,[MANAGER_LEVEL_DESCRIPTION]
+      ,[REASON_2]
+      ,[REASON_DESCRIPTION_2]
+      ,[RELATIONSHIP_TO_ORGANIZATION]
+      ,[IS_PRIMARY_SUPERVISOR]
+      ,[ANNIVERSARY_DATE]
+      ,[DISABILITY]
+      ,[ELIGIBLE_FOR_REHIRE]
+      ,[NORTON_TOTAL_YRS_DIRECT_EXP]
+      ,[COST_CENTER]
+      --,[COST_CENTER_DESCRIPTION]
+	  ,SUBSTRING([COST_CENTER_DESCRIPTION], 1, 60) as [COST_CENTER_DESCRIPTION]
+      ,[NORTON_PENDING_YRS_EXP]
+      ,[FACILITY]
+      ,[FACILITY_NAME]
+      ,[GenerationName]
+      --,[CostCenterName]
+	,SUBSTRING(CostCenterName, CHARINDEX('-', CostCenterName) +1, 60) as CostCenterName
+      ,[SubfunctionName]
+      ,[FunctionName]
+      ,[SectionName]
+      ,[EntityName]
+      ,[DivisionName]
+      ,[OrganizationName]
+	  ,ROW_NUMBER() OVER(PARTITION BY EMPLOYEE_ID ORDER BY RowInsertDateTime DESC) as RowNum
+	  ,CASE WHEN dateadd(year, datediff (year, BIRTH_DATE, getdate()), BIRTH_DATE) > getdate()
+            THEN datediff(year, BIRTH_DATE, getdate()) - 1
+            ELSE datediff(year, BIRTH_DATE, getdate())
+       END as AGE
+--,NULL as AGE
+  FROM [HRIS_Views].[Employee].[vwFactEmployeeCurrentViewAllEmployee_Snapshot] as es WITH (NOLOCK)
+  --INNER JOIN 
+  --(
+  --SELECT MAX(HASH_ID) as HASH_ID, EMPLOYEE_ID, MAX(RowInsertDatetime) as MostRecentRecord 
+  --FROM [HRIS_Views].[Employee].[vwFactEmployeeCurrentViewAllEmployee_Snapshot] as mr WITH (NOLOCK)
+  --WHERE 
+  --EMPLOYEE_ID = 7
+  --GROUP BY EMPLOYEE_ID
+
+  
+  --)
+  --WHERE CAST(KEY_POSITIONS_CODE as varchar(10))  <> CAST(NORTONTURNOVERCATEGORY  as varchar(10))
+  WHERE 1=1
+  AND (RowInsertDateTime < @ENDDATE )
+  --AND TERMINATION_DATE < @RunDate
+  --and es.e
+  --AND TERMINATION_DATE >= '2020-01-01' 
+  --AND TERMINATION_DATE < @RunDate -- terms cummulative to run date                                  
+ --AND RELATIONSHIP_STATUS NOT IN ('ACTIVE', 'LEAVE', 'ADMIN LEAVE', 'JOB PLACEMENT')
+  --AND RELATIONSHIP_STATUS NOT IN ('TERMINATED', 'TERM PENDING')
+ ----AND REASON
+  AND RELATIONSHIP_TO_ORGANIZATION = 'EMPLOYEE'
+ -- AND KEY_POSITIONS_DESCRIPTION <> 'Excluded Positions'
+ -- AND Right(KEY_POSITIONS_DESCRIPTION, 10) <> '(Registry)'
+  --AND (HIRE_DATE >= '2019-01-01' OR REHIRE_DATE >= '2019-01-01')
+
+  )
+  as d
+  WHERE Rownum = 1
+  --and EMPLOYEE_ID = 139
+  --AND [RELATIONSHIP_STATUS]  NOT IN ('TERM PENDING', 'TERMINATED', 'RETIREDWPAY', 'SEVERANCE'            )
+  AND ([RELATIONSHIP_STATUS]  NOT IN ( 'TERMINATED', 'RETIREDWPAY', 'SEVERANCE','TERM PENDING'            )
+--  OR [RELATIONSHIP_STATUS]   IN ('TERM PENDING'  ) and EXISTS ( --exclude employees late termed in 2020 for 2019 as there were not actually here as of 1/1/2020
+--  SELECT EffectiveDate FROM [emptrk].[tblFactDwDtEmployeeHRHTTP] (NOLOCK)
+--WHERE 1=1
+--AND EMPLOYEE_ID = d.EMPLOYEE_ID
+--AND EventType = 'Termination' 
+--AND EffectiveDate > @ENDDATE
+
+--  )
+  )
+
+  
+  UNION ALL
+
+
+  /* Hires */  
+ 
+  SELECT
+  RECORDTYPE = 'H'
+, et.EMPLOYEE_AHSN as AHSN
+,et.EMPLOYEE_ID
+,FIRST_NAME
+,LAST_NAME
+,et.EffectiveDate
+,et.SystemDate as Action_Date
+,BeginDate = DATEADD(d, 1, DATEADD(MM, -1, CAST(@BEGINDATE AS date)))
+,CAST(COALESCE(s.REHIRE_DATE, s.HIRE_DATE) as DATE) RehireDate
+,et.Reasoncode as Reason 
+--,CASE 
+--WHEN et.Reasoncode <> 'ACQUISITION' AND s.REHIRE_DATE > s.HIRE_DATE THEN 'REHIRE' 
+--ELSE et.Reasoncode 
+--END AS Reason
+,et.ReasonDescription 
+--,CASE 
+--WHEN et.Reasoncode <> 'ACQUISITION' AND s.REHIRE_DATE > s.HIRE_DATE THEN NULL 
+--ELSE et.ReasonDescription  
+--END AS ReasonDescription 
+--,s.PROCESS_LEVEL as ProcessLevel 
+,LEFT(HRO.SHORTDESCRIPTION, 2) COLLATE SQL_Latin1_General_CP1_CI_AS as PROCESS_LEVEL
+,s.PROCESS_LEVEL_NAME as [Process Level Name]
+--,s.DEPARTMENT as Department
+, RIGHT(RTRIM(s.COST_CENTER), 4)  COLLATE SQL_Latin1_General_CP1_CI_AS as DEPARTMENT
+,SUBSTRING(RTRIM(HRO.DESCRIPTION), 8, LEN(HRO.DESCRIPTION)) COLLATE SQL_Latin1_General_CP1_CI_AS as DEPARTMENT_NAME
+--,s.DEPARTMENT_NAME as [Department Name]
+,s.FTE as FTE
+,et.LocName as Location
+--,s.EntityName AS Location
+,s.KEY_POSITIONS_CODE as  KeyPosition
+,s.KEY_POSITIONS_DESCRIPTION AS [KeyPosition Description]
+,et.TerminationType as TermType
+,et.MonthsEmployed as ServiceMonths 
+,et.Ethnicity Ethnicity
+,s.FLSA_STATUS as [FLSA Status]
+,s.FULL_OR_PART_TIME_FLAG as [Full time or Part Time]
+,s.POSITION_CODE as  [Position Code]
+,s.POSITION_DESCRIPTION as [Position Description]
+, s.JOB_CODE as Job
+,s.JOB_TITLE [Job Description]
+--*/ columns to complete BEHT
+--,JOB_CODE
+--,PROCESS_LEVEL
+--,DEPARTMENT
+,s.COST_CENTER
+--,DEPARTMENT_NAME
+--,JOB_TITLE
+--,EMPLOYEE_AHSN
+--,EMPLOYEE_ID
+,s.RELATIONSHIP_STATUS
+--,EffectiveDate= CAST(@BEGINDATE AS date)
+--,CAST(COALESCE(REHIRE_DATE, HIRE_DATE) as DATE) as HIREREHIREDATE
+,CAST(s.HIRE_DATE as date) as Hire_Date
+,CAST(s.REHIRE_DATE as date) as REHIRE_Date
+,CAST(GETDATE() as date) as PULLDATE
+,CAST(s.BIRTH_DATE as DATE) as BIRTH_DATE
+--,ecv.AGE as Age
+,CASE WHEN dateadd(year, datediff (year, ecv.BIRTH_DATE, et.EffectiveDate), ecv.BIRTH_DATE) > et.EffectiveDate
+            THEN datediff(year, ecv.BIRTH_DATE, et.EffectiveDate) - 1
+            ELSE datediff(year, ecv.BIRTH_DATE, et.EffectiveDate)
+       END as AGE
+,CASE 
+WHEN ecv.AGE < 17 THEN '<17'
+WHEN ecv.AGE BETWEEN 18 AND 24 THEN  '18-24'
+WHEN ecv.AGE BETWEEN 25 and 34 THEN '25-34'
+WHEN ecv.AGE BETWEEN 35 and 44 THEN '35-44'
+WHEN ecv.AGE BETWEEN 45 AND 54 THEN '45-54'
+WHEN ecv.AGE BETWEEN 55 AND 59 THEN '55-59'
+WHEN ecv.AGE BETWEEN 60 AND 64 THEN '60-64'
+WHEN ecv.AGE >= 65 THEN '65+'
+END AS AGERANGE
+--,ROW_NUMBER() OVER (PARTITION BY Employee_ID, 
+FROM
+(
+SELECT emptrk.tblFactDwDtEmployeeHRHTTP.RecordCategory
+	,emptrk.tblFactDwDtEmployeeHRHTTP.EMPLOYEE_ID
+	,emptrk.tblFactDwDtEmployeeHRHTTP.EmployeeName
+	,emptrk.tblFactDwDtEmployeeHRHTTP.CategorySeqID
+	,emptrk.tblFactDwDtEmployeeHRHTTP.EventType
+	,emptrk.tblFactDwDtEmployeeHRHTTP.EventSeqID_SysDate
+	,emptrk.tblFactDwDtEmployeeHRHTTP.EventSeqID_EffDate
+	,emptrk.tblFactDwDtEmployeeHRHTTP.SystemDate
+	,emptrk.tblFactDwDtEmployeeHRHTTP.EffectiveDate
+	,emptrk.tblFactDwDtEmployeeHRHTTP.IsValidEvent
+	,emptrk.tblFactDwDtEmployeeHRHTTP.IsOverriden
+	,emptrk.tblFactDwDtEmployeeHRHTTP.OverrideID
+	,emptrk.tblFactDwDtEmployeeHRHTTP.OverrideReason
+	,emptrk.tblFactDwDtEmployeeHRHTTP.SubjectCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP.ActionCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP.Reasoncode
+	,emptrk.tblFactDwDtEmployeeHRHTTP.ReasonDescription
+	,emptrk.tblFactDwDtEmployeeHRHTTP.TerminationType
+	,emptrk.tblFactDwDtEmployeeHRHTTP.WAActive
+	,emptrk.tblFactDwDtEmployeeHRHTTP.WorkAssignment
+	,emptrk.tblFactDwDtEmployeeHRHTTP.PositionCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP.PositionDescription
+	,emptrk.tblFactDwDtEmployeeHRHTTP.PosKeyPosGroup
+	,emptrk.tblFactDwDtEmployeeHRHTTP.PosKeyPosGroupCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP.JobCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP.JobDescription
+	,emptrk.tblFactDwDtEmployeeHRHTTP.JobPreferredTitle
+	,emptrk.tblFactDwDtEmployeeHRHTTP.SupervisorCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP.SupervisorEmpID
+	,emptrk.tblFactDwDtEmployeeHRHTTP.SupervisorAHSN
+	,emptrk.tblFactDwDtEmployeeHRHTTP.SupervisorTitle
+	,emptrk.tblFactDwDtEmployeeHRHTTP.SupervisorName
+	,emptrk.tblFactDwDtEmployeeHRHTTP.WorkSchedule
+	,emptrk.tblFactDwDtEmployeeHRHTTP.PayRate
+	,emptrk.tblFactDwDtEmployeeHRHTTP.PayGrade
+	,emptrk.tblFactDwDtEmployeeHRHTTP.FTE
+	,emptrk.tblFactDwDtEmployeeHRHTTP.WorkType
+	,emptrk.tblFactDwDtEmployeeHRHTTP.SalaryStructureGrade
+	,emptrk.tblFactDwDtEmployeeHRHTTP.SalaryStructure
+	,emptrk.tblFactDwDtEmployeeHRHTTP.RelationshipStatus
+	,emptrk.tblFactDwDtEmployeeHRHTTP.RelationshipToNHC
+	,emptrk.tblFactDwDtEmployeeHRHTTP.GLCompany
+	,emptrk.tblFactDwDtEmployeeHRHTTP.HROrganization
+	,emptrk.tblFactDwDtEmployeeHRHTTP.HROrganizationUnit
+	,emptrk.tblFactDwDtEmployeeHRHTTP.HREntityName
+	,emptrk.tblFactDwDtEmployeeHRHTTP.LocCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP.LocName
+	,emptrk.tblFactDwDtEmployeeHRHTTP.CostCenterCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.CostCenterNameShort
+	,emptrk.tblFactDwDtEmployeeHRHTTP.FacilityCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP.FacilityName
+	,emptrk.tblFactDwDtEmployeeHRHTTP.Age
+	,emptrk.tblFactDwDtEmployeeHRHTTP.AgeGroupCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP.AgeGenerationCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.EMPLOYEE_AHSN
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.GenderCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.Gender
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.EthnicityCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.Ethnicity
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.IsVeteran
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.AnniversaryDate
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.HRHDate
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.DaysEmployed
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.DaysEmployedRangeOneYear
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.MonthsEmployed
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.AdjStartDateYears
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.ServiceDate
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.AdjAnniversaryYears
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.JobFamily
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.CheckRequestLevel
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.FLSAstatus
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.CompaRatio
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.SalaryRange
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.DateJobLastChanged
+	
+FROM emptrk.tblFactDwDtEmployeeHRHTTP
+INNER JOIN emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes
+	ON (
+			emptrk.tblFactDwDtEmployeeHRHTTP.RecordCategory = emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.RecordCategory
+			AND emptrk.tblFactDwDtEmployeeHRHTTP.EMPLOYEE_ID = emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.EMPLOYEE_ID
+			AND emptrk.tblFactDwDtEmployeeHRHTTP.CategorySeqID = emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.CategorySeqID
+			)
+
+) as et
+INNER JOIN 
+[Employee].[tblFactEmployeeCurrentViewAllEmployee] ecv (NOLOCK)
+ON ecv.EMPLOYEE_ID = et.EMPLOYEE_ID
+INNER JOIN (
+	SELECT s.[EMPLOYEE_ID]
+		,s.[RowInsertDateTime]
+		,s.[COMPANY]
+		,s.[COMPANY_NAME]
+		,s.[EMPLOYEE_AHSN]
+		,s.[SOCIAL_NUMBER]
+		,s.[EFFECTIVE_CHANGE_DATE]
+		,s.[NAME_PREFIX]
+		,s.[NAME_SUFFIX]
+		,s.[FIRST_NAME]
+		,s.[LAST_NAME]
+		,s.[MIDDLE_NAME]
+		,s.[PREFERRED_NAME]
+		,s.[EMPLOYEE_NAME]
+		,s.[DEPARTMENT]
+		,s.[DEPARTMENT_NAME]
+		,s.[JOB_CODE]
+		,s.[WORK_ASSIGNMENT]
+		,s.[JOB_TITLE]
+		,s.[JOB_CLASS]
+		,s.[POSITION_CODE]
+		,s.[POSITION_DESCRIPTION]
+		,s.[PROCESS_LEVEL]
+		,s.[PROCESS_LEVEL_NAME]
+		,s.[ETHNICITY_CODE]
+		,s.[ETHNICITY_DESCRIPTION]
+		,s.[TAX_ADDRESS_1]
+		,s.[TAX_ADDRESS_2]
+		,s.[TAX_CITY]
+		,s.[TAX_STATE]
+		,s.[TAX_COUNTY]
+		,s.[TAX_COUNTRY_CODE]
+		,s.[TAX_COUNTRY_DESCRIPTION]
+		,s.[TAX_ZIP]
+		,s.[TAX_HOME_PHONE]
+		,s.[MAIL_ADDRESS_1]
+		,s.[MAIL_ADDRESS_2]
+		,s.[MAIL_CITY]
+		,s.[MAIL_STATE]
+		,s.[MAIL_COUNTY]
+		,s.[MAIL_COUNTRY_CODE]
+		,s.[MAIL_COUNTRY_DESCRIPTION]
+		,s.[MAIL_ZIP]
+		,s.[MAIL_HOME_PHONE]
+		,s.[GENDER]
+		,s.[GENDER_DESCRIPTION]
+		,s.[MARITAL_STATUS]
+		,s.[MARITAL_STATUS_DESCRIPTION]
+		,s.[SHIFT]
+		,s.[LOCATION_CODE]
+		,s.[LOCATION_DESCRIPTION]
+		,s.[ACTION_CODE]
+		,s.[ACTION_NUMBER]
+		,s.[ACTION_TYPE]
+		,s.[ACTION_DESCRIPTION]
+		,s.[REASON]
+		,s.[REASON_DESCRIPTION]
+		,s.[ACTION_DATE]
+		,s.[EFFECTIVE_DATE]
+		,s.[RELATIONSHIP_STATUS]
+		,s.[STATUS_DESCRIPTION]
+		,s.[HIRE_DATE]
+		,s.[REHIRE_DATE]
+		,s.[BIRTH_DATE]
+		,s.[SERVICE_DATE]
+		,s.[REVIEW_DATE]
+		,s.[REVIEW_CODE]
+		,s.[EMAIL_ADDRESS]
+		,s.[SUPERVISOR_CODE]
+		,s.[SUPERVISOR_FIRST_NAME]
+		,s.[SUPERVISOR_LAST_NAME]
+		,s.[SUPERVISOR_FULL_NAME]
+		,s.[SUPERVISOR_POSITION]
+		,s.[SUPERVISOR_EMP_ID]
+		,s.[SUPERVISOR_EMAIL]
+		,s.[SUPERVISOR_AHSN]
+		,s.[SUPERVISOR_SOCIAL_NUM]
+		,s.[INDIRECT_SUPERVISOR_CODE]
+		,s.[INDIRECT_SUPERVISOR_FIRST_NAME]
+		,s.[INDIRECT_SUPERVISOR_LAST_NAME]
+		,s.[INDIRECT_SUPERVISOR_FULL_NAME]
+		,s.[INDIRECT_SUPERVISOR_POSITION]
+		,s.[INDIRECT_SUPERVISOR_EMP_ID]
+		,s.[INDIRECT_SUPERVISOR_EMAIL]
+		,s.[INDIRECT_SUPERVISOR_AHSN]
+		,s.[INDIRECT_SUPERVISOR_SOCIAL_NUM]
+		,s.[PAY_RATE]
+		,s.[FTE]
+		,s.[TOTAL_FTE]
+		,s.[WORK_SCHEDULE]
+		,s.[WORK_SCHEDULE_DESCRIPTION]
+		,s.[FLSA_STATUS]
+		,s.[WORK_PHONE]
+		,s.[SCHEDULE]
+		,s.[SCHEDULE_DESCRIPTION]
+		,s.[PAY_PLAN_CODE]
+		,s.[PAY_PLAN_DESCRIPTION]
+		,s.[VETERAN]
+		,s.[GRADE]
+		,s.[GRADE_DESCRIPTION]
+		,s.[EEO_CATEGORY]
+		,s.[EEO_CATEGORY_DESCRIPTION]
+		,s.[PROCESS_DEPARTMENT]
+		,s.[FULL_OR_PART_TIME_FLAG]
+		,s.[TERMINATION_DATE]
+		,s.[EEO_GROUP_CODE]
+		,s.[EEO_GROUP_DESCRIPTION]
+		,s.[COMPENSATION_GROUPING]
+		,s.[KEY_POSITIONS_CODE]
+		,s.[KEY_POSITIONS_DESCRIPTION]
+		,s.[MANAGER_LEVEL_CODE]
+		,s.[MANAGER_LEVEL_DESCRIPTION]
+		,s.[REASON_2]
+		,s.[REASON_DESCRIPTION_2]
+		,s.[RELATIONSHIP_TO_ORGANIZATION]
+		,s.[IS_PRIMARY_SUPERVISOR]
+		,s.[ANNIVERSARY_DATE]
+		,s.[DISABILITY]
+		,s.[ELIGIBLE_FOR_REHIRE]
+		,s.[NORTON_TOTAL_YRS_DIRECT_EXP]
+		,s.[COST_CENTER]
+		,s.[COST_CENTER_DESCRIPTION]
+		,s.[NORTON_PENDING_YRS_EXP]
+		,s.[FACILITY]
+		,s.[FACILITY_NAME]
+		,s.[GenerationName]
+		,s.[CostCenterName]
+		,s.[SubfunctionName]
+		,s.[FunctionName]
+		,s.[SectionName]
+		,s.[EntityName]
+		,s.[DivisionName]
+		,s.[OrganizationName]
+		,ROW_NUMBER() OVER (
+			PARTITION BY s.EMPLOYEE_ID ORDER BY RowInsertDateTime DESC
+			) AS RowNum
+	FROM Snap AS s
+	--INNER JOIN (
+	--	SELECT Employee_ID
+	--		--,MAX(TERMINATION_DATE) AS MostRecentTerm
+	--		,MAX(REHIRE_DATE) AS MostRecentHire
+	--	FROM [HRIS_Views].[Employee].[vwFactEmployeeCurrentViewAllEmployee_Snapshot]
+	--	--WHERE TERMINATION_DATE IS NOT NULL
+	--	GROUP BY EMPLOYEE_ID
+	--	) AS mrt
+		--ON mrt.EMPLOYEE_ID = s.EMPLOYEE_ID
+			--AND mrt.MostRecentTerm = s.TERMINATION_DATE
+			--AND mrt.MostRecentHire = s.REHIRE_DATE
+	WHERE 1 = 1
+		AND s.RowInsertDateTime < DATEADD(d, 1, @RunDate)
+		--AND s.RowInsertDateTime < DATEADD(d, 1, et.SystemDate)
+		--AND s.TERMINATION_DATE IS NOT NULL
+		--and s.Rownum = 1
+		--AND s.RowInsertDateTime < DATEADD(d, 1 @RunDate)
+	) AS s
+	ON s.EMPLOYEE_ID = et.Employee_ID
+		--AND s.TERMINATION_DATE = et.TerminationDate
+		AND rownum = 1
+INNER  JOIN LTMPROD.hcm.HRORGANIZATIONUNIT as HRO WITH (NOLOCK)
+	on HRO.HRORGANIZATIONUNIT=s.DEPARTMENT
+WHERE 1=1
+AND EventType IN (
+'Hire'
+,'Rehire'
+--'LATESTWAH_Hire'
+--,'LATESTWAH_Rehire'
+)
+--et.EventType = 'Hire'
+ AND (et.EffectiveDate >= @BeginDate AND  et.EffectiveDate < @ENDDATE )
+--AND PosKeyPosGroup <> 'Excluded Positions'
+--AND et.Reasoncode NOT IN ('DEATH', 'ERROR', 'TEMPORARY', 'SEVERANCE')
+AND et.RelationshipToNHC = 'Employee'
+--) as beht
+  --and EMPLOYEE_ID = 139
+  --AND [RELATIONSHIP_STATUS]  NOT IN ('TERM PENDING', 'TERMINATED', 'RETIREDWPAY', 'SEVERANCE'            )
+  --*/
+  UNION ALL 
+  
+  /* Terminations */
+  SELECT 
+  RECORDTYPE = 'T'
+, et.EMPLOYEE_AHSN as AHSN
+,et.EMPLOYEE_ID
+,FIRST_NAME
+,LAST_NAME
+,et.EffectiveDate
+,et.SystemDate as Action_Date
+,BeginDate = DATEADD(d, 1, DATEADD(MM, -1, CAST(@BEGINDATE AS date)))
+,CAST(COALESCE(s.REHIRE_DATE, s.HIRE_DATE) as DATE) RehireDate
+,et.Reasoncode as Reason 
+,et.ReasonDescription 
+--,s.PROCESS_LEVEL as ProcessLevel 
+,LEFT(HRO.SHORTDESCRIPTION, 2) COLLATE SQL_Latin1_General_CP1_CI_AS as PROCESS_LEVEL
+,s.PROCESS_LEVEL_NAME as [Process Level Name]
+--,s.DEPARTMENT as Department
+, RIGHT(RTRIM(s.COST_CENTER), 4)  COLLATE SQL_Latin1_General_CP1_CI_AS as DEPARTMENT
+,SUBSTRING(RTRIM(LTRIM(HRO.DESCRIPTION)), 8, LEN(HRO.DESCRIPTION)) COLLATE SQL_Latin1_General_CP1_CI_AS as DEPARTMENT_NAME
+--,s.DEPARTMENT_NAME as [Department_Name]
+,s.FTE as FTE
+,et.LocName as Location
+--,s.EntityName AS Location
+,s.KEY_POSITIONS_CODE as  KeyPosition
+,s.KEY_POSITIONS_DESCRIPTION AS [KeyPosition Description]
+,et.TerminationType as TermType
+,et.MonthsEmployed as ServiceMonths 
+,et.Ethnicity Ethnicity
+,s.FLSA_STATUS as [FLSA Status]
+,s.FULL_OR_PART_TIME_FLAG as [Full time or Part Time]
+,s.POSITION_CODE as  [Position Code]
+,s.POSITION_DESCRIPTION as [Position Description]
+, s.JOB_CODE as Job
+,s.JOB_TITLE [Job Description]
+--*/ columns to complete BEHT
+--,JOB_CODE
+--,PROCESS_LEVEL
+--,DEPARTMENT
+,s.COST_CENTER
+--,DEPARTMENT_NAME
+--,JOB_TITLE
+--,EMPLOYEE_AHSN
+--,EMPLOYEE_ID
+,s.RELATIONSHIP_STATUS
+--,EffectiveDate= CAST(@BEGINDATE AS date)
+--,CAST(COALESCE(REHIRE_DATE, HIRE_DATE) as DATE) as HIREREHIREDATE
+,CAST(s.HIRE_DATE as date) as Hire_Date
+,CAST(s.REHIRE_DATE as date) as REHIRE_Date
+,CAST(GETDATE() as date) as PULLDATE
+,CAST(s.BIRTH_DATE as DATE) as BIRTH_DATE
+--,ecv.AGE as Age
+,CASE WHEN dateadd(year, datediff (year, ecv.BIRTH_DATE, et.EffectiveDate), ecv.BIRTH_DATE) > et.EffectiveDate
+            THEN datediff(year, ecv.BIRTH_DATE, et.EffectiveDate) - 1
+            ELSE datediff(year, ecv.BIRTH_DATE, et.EffectiveDate)
+       END as AGE
+,CASE 
+WHEN ecv.AGE < 17 THEN '<17'
+WHEN ecv.AGE BETWEEN 18 AND 24 THEN  '18-24'
+WHEN ecv.AGE BETWEEN 25 and 34 THEN '25-34'
+WHEN ecv.AGE BETWEEN 35 and 44 THEN '35-44'
+WHEN ecv.AGE BETWEEN 45 AND 54 THEN '45-54'
+WHEN ecv.AGE BETWEEN 55 AND 59 THEN '55-59'
+WHEN ecv.AGE BETWEEN 60 AND 64 THEN '60-64'
+WHEN ecv.AGE >= 65 THEN '65+'
+END AS AGERANGE
+  --top 10
+  /*
+   RECORDTYPE = 'T'
+,s.JOB_CODE
+--,LEFT(et.CostCenterCode, 2) as PROCESS_LEVEL
+,LEFT(HRO.SHORTDESCRIPTION, 2) COLLATE SQL_Latin1_General_CP1_CI_AS as PROCESS_LEVEL
+--,s.DEPARTMENT
+, RIGHT(RTRIM(s.COST_CENTER), 4)  COLLATE SQL_Latin1_General_CP1_CI_AS as DEPARTMENT
+,s.COST_CENTER COLLATE SQL_Latin1_General_CP1_CI_AS as COST_CENTER
+--,et.CostCenterNameShort as DEPARTMENT_NAME
+,SUBSTRING(RTRIM(HRO.DESCRIPTION), 9, LEN(HRO.DESCRIPTION)) COLLATE SQL_Latin1_General_CP1_CI_AS as DEPARTMENT_NAME
+--,HRO.DESCRIPTION as HRODESCRIPTION
+,s.JOB_TITLE
+,et.EMPLOYEE_AHSN
+,et.EMPLOYEE_ID
+,et.RelationshipStatus
+,CAST(et.EffectiveDate AS date) as EffectiveDate
+,CAST(COALESCE(s.REHIRE_DATE, s.HIRE_DATE) as date) as HIREREHIREDATE
+,CAST(s.HIRE_DATE AS date) as HIRE_DATE
+,CAST(s.REHIRE_DATE AS date) as REHIRE_DATE
+,CAST(GETDATE()AS date) as PULLDATE
+,CAST(ecv.BIRTH_DATE AS date) as BIRTH_DATE
+--,CASE WHEN dateadd(year, datediff (year, BIRTH_DATE, getdate()), BIRTH_DATE) > getdate()
+--            THEN datediff(year, BIRTH_DATE, getdate()) - 1
+--            ELSE datediff(year, BIRTH_DATE, getdate())
+--       END as AGE
+--,NULL as AGE
+,CASE 
+WHEN et.Age < 17 THEN '<17'
+WHEN et.Age BETWEEN 18 AND 24 THEN  '18-24'
+WHEN et.Age BETWEEN 25 and 34 THEN '25-34'
+WHEN et.Age BETWEEN 35 and 44 THEN '35-44'
+WHEN et.Age BETWEEN 45 AND 54 THEN '45-54'
+WHEN et.Age BETWEEN 55 AND 59 THEN '55-59'
+WHEN et.Age BETWEEN 60 AND 64 THEN '60-64'
+WHEN et.Age >= 65 THEN '65+'
+END AS AGERANGE
+,et.Reasoncode as Reason
+,et.ReasonDescription REASON_DESCRIPTION
+,s.LOCATION_DESCRIPTION
+,et.FTE
+
+,CASE
+WHEN et.DaysEmployedRangeOneYear = '<= 30 Days'	THEN '<= 30 Days'
+WHEN et.DaysEmployedRangeOneYear = '183-365 Days'	THEN'> 6 Months - 1 Year'
+WHEN et.DaysEmployedRangeOneYear = '31-60 Days' THEN	'31 - 60 Days'
+WHEN et.DaysEmployedRangeOneYear = '61-90 Days' THEN	'61 - 90 Days'
+WHEN et.DaysEmployedRangeOneYear = '91-182 Days'	THEN '91 Days - 6 Months'
+ELSE ''
+END  AS ServiceDayRangeLessThanYear
+,et.Ethnicity AS Ethnicity
+,et.Gender
+,et.FLSAstatus AS FLSAStatus
+,et.WorkType AS FulltimeOrPartTime
+,et.PositionCode AS PositionCode
+,et.PositionDescription AS Position
+,et.JobCode AS JobCode
+,et.JobDescription AS Job
+--,CASE WHEN dateadd(year, datediff (year, BIRTH_DATE, et.EffectiveDate), BIRTH_DATE) > ET.EffectiveDate
+--            THEN datediff(year, BIRTH_DATE, EffectiveDate) - 1
+--            ELSE datediff(year, BIRTH_DATE, EffectiveDate)
+--       END  AS AgeAtTerm
+,et.Age as AgeAtTerm
+,et.AgeGroupCode AS AgeRange
+,et.AgeGenerationCode AS Generation
+,CASE et.CheckRequestLevel
+WHEN '1' THEN 'System Chief Executive Officer' 
+WHEN '2' THEN 'System President' 
+WHEN '3' THEN 'System SVP Operations/CFO' 
+WHEN '4' THEN 'Division President/Sys SVP CMO/CNO' 
+WHEN '5' THEN 'CAO/Division VP/System VP' 
+WHEN '6' THEN 'Exec Director/Sys AVP/Sys Dir/VP Ops' 
+WHEN '7' THEN 'Director/Medical Director' 
+WHEN '8' THEN 'Manager/Nurse Manager/Practice Manager/Sous Chef/Lab Chief' 
+WHEN '9' THEN 'Asst Manager/Asst Nurse Manager/House Supv/Supv'
+WHEN '10' THEN 'Non-Manager'
+ELSE '' 
+END as LeadershipLevel
+,et.EMPLOYEE_ID AS EmployeeID
+,et.SupervisorName AS SupervisorName
+,CASE WHEN et.PosKeyPosGroup like '%Registry%' THEN 'REGISTRY' ELSE 'NON-REGISTRY' END AS StatusRegistryNonRegistry
+,CASE 
+--WHEN DATEDIFF(MM, HRHDate, et.EffectiveDate) >=121 THEN '10+ Years'
+--WHEN DATEDIFF(MM, HRHDate, et.EffectiveDate) >=60 THEN '5 - < 10 Years'
+--WHEN DATEDIFF(MM, HRHDate, et.EffectiveDate) >=36 THEN '3 - < 5 Years'
+--WHEN DATEDIFF(MM, HRHDate, et.EffectiveDate) >=12 THEN '1 - < 3 Years'
+--WHEN DATEDIFF(MM, HRHDate, et.EffectiveDate) <=11 THEN '< 1 Year'
+WHEN et.MonthsEmployed >=121 THEN '10+ Years'
+WHEN et.MonthsEmployed >=60 THEN '5 - < 10 Years'
+WHEN et.MonthsEmployed >=36 THEN '3 - < 5 Years'
+WHEN et.MonthsEmployed >=12 THEN '1 - < 3 Years'
+WHEN et.MonthsEmployed <=11 THEN '< 1 Year'
+
+ELSE ''
+END AS ServiceYearRange
+*/
+FROM
+(
+SELECT emptrk.tblFactDwDtEmployeeHRHTTP.RecordCategory
+	,emptrk.tblFactDwDtEmployeeHRHTTP.EMPLOYEE_ID
+	,emptrk.tblFactDwDtEmployeeHRHTTP.EmployeeName
+	,emptrk.tblFactDwDtEmployeeHRHTTP.CategorySeqID
+	,emptrk.tblFactDwDtEmployeeHRHTTP.EventType
+	,emptrk.tblFactDwDtEmployeeHRHTTP.EventSeqID_SysDate
+	,emptrk.tblFactDwDtEmployeeHRHTTP.EventSeqID_EffDate
+	,emptrk.tblFactDwDtEmployeeHRHTTP.SystemDate
+	,emptrk.tblFactDwDtEmployeeHRHTTP.EffectiveDate
+	,emptrk.tblFactDwDtEmployeeHRHTTP.IsValidEvent
+	,emptrk.tblFactDwDtEmployeeHRHTTP.IsOverriden
+	,emptrk.tblFactDwDtEmployeeHRHTTP.OverrideID
+	,emptrk.tblFactDwDtEmployeeHRHTTP.OverrideReason
+	,emptrk.tblFactDwDtEmployeeHRHTTP.SubjectCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP.ActionCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP.Reasoncode
+	,emptrk.tblFactDwDtEmployeeHRHTTP.ReasonDescription
+	,emptrk.tblFactDwDtEmployeeHRHTTP.TerminationType
+	,emptrk.tblFactDwDtEmployeeHRHTTP.WAActive
+	,emptrk.tblFactDwDtEmployeeHRHTTP.WorkAssignment
+	,emptrk.tblFactDwDtEmployeeHRHTTP.PositionCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP.PositionDescription
+	,emptrk.tblFactDwDtEmployeeHRHTTP.PosKeyPosGroup
+	,emptrk.tblFactDwDtEmployeeHRHTTP.PosKeyPosGroupCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP.JobCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP.JobDescription
+	,emptrk.tblFactDwDtEmployeeHRHTTP.JobPreferredTitle
+	,emptrk.tblFactDwDtEmployeeHRHTTP.SupervisorCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP.SupervisorEmpID
+	,emptrk.tblFactDwDtEmployeeHRHTTP.SupervisorAHSN
+	,emptrk.tblFactDwDtEmployeeHRHTTP.SupervisorTitle
+	,emptrk.tblFactDwDtEmployeeHRHTTP.SupervisorName
+	,emptrk.tblFactDwDtEmployeeHRHTTP.WorkSchedule
+	,emptrk.tblFactDwDtEmployeeHRHTTP.PayRate
+	,emptrk.tblFactDwDtEmployeeHRHTTP.PayGrade
+	,emptrk.tblFactDwDtEmployeeHRHTTP.FTE
+	,emptrk.tblFactDwDtEmployeeHRHTTP.WorkType
+	,emptrk.tblFactDwDtEmployeeHRHTTP.SalaryStructureGrade
+	,emptrk.tblFactDwDtEmployeeHRHTTP.SalaryStructure
+	,emptrk.tblFactDwDtEmployeeHRHTTP.RelationshipStatus
+	,emptrk.tblFactDwDtEmployeeHRHTTP.RelationshipToNHC
+	,emptrk.tblFactDwDtEmployeeHRHTTP.GLCompany
+	,emptrk.tblFactDwDtEmployeeHRHTTP.HROrganization
+	,emptrk.tblFactDwDtEmployeeHRHTTP.HROrganizationUnit
+	,emptrk.tblFactDwDtEmployeeHRHTTP.HREntityName
+	,emptrk.tblFactDwDtEmployeeHRHTTP.LocCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP.LocName
+	,emptrk.tblFactDwDtEmployeeHRHTTP.CostCenterCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.CostCenterNameShort
+	,emptrk.tblFactDwDtEmployeeHRHTTP.FacilityCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP.FacilityName
+	,emptrk.tblFactDwDtEmployeeHRHTTP.Age
+	,emptrk.tblFactDwDtEmployeeHRHTTP.AgeGroupCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP.AgeGenerationCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.EMPLOYEE_AHSN
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.GenderCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.Gender
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.EthnicityCode
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.Ethnicity
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.IsVeteran
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.AnniversaryDate
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.HRHDate
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.DaysEmployed
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.DaysEmployedRangeOneYear
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.MonthsEmployed
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.AdjStartDateYears
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.ServiceDate
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.AdjAnniversaryYears
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.JobFamily
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.CheckRequestLevel
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.FLSAstatus
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.CompaRatio
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.SalaryRange
+	,emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.DateJobLastChanged
+	
+FROM emptrk.tblFactDwDtEmployeeHRHTTP
+INNER JOIN emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes
+	ON (
+			emptrk.tblFactDwDtEmployeeHRHTTP.RecordCategory = emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.RecordCategory
+			AND emptrk.tblFactDwDtEmployeeHRHTTP.EMPLOYEE_ID = emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.EMPLOYEE_ID
+			AND emptrk.tblFactDwDtEmployeeHRHTTP.CategorySeqID = emptrk.tblFactDwDtEmployeeHRHTTP_MoreAttributes.CategorySeqID
+			)
+
+) as et
+INNER JOIN 
+[Employee].[tblFactEmployeeCurrentViewAllEmployee] ecv (NOLOCK)
+ON ecv.EMPLOYEE_ID = et.EMPLOYEE_ID
+INNER JOIN (
+	SELECT s.[EMPLOYEE_ID]
+		,s.[RowInsertDateTime]
+		,s.[COMPANY]
+		,s.[COMPANY_NAME]
+		,s.[EMPLOYEE_AHSN]
+		,s.[SOCIAL_NUMBER]
+		,s.[EFFECTIVE_CHANGE_DATE]
+		,s.[NAME_PREFIX]
+		,s.[NAME_SUFFIX]
+		,s.[FIRST_NAME]
+		,s.[LAST_NAME]
+		,s.[MIDDLE_NAME]
+		,s.[PREFERRED_NAME]
+		,s.[EMPLOYEE_NAME]
+		,s.[DEPARTMENT]
+		,s.[DEPARTMENT_NAME]
+		,s.[JOB_CODE]
+		,s.[WORK_ASSIGNMENT]
+		,s.[JOB_TITLE]
+		,s.[JOB_CLASS]
+		,s.[POSITION_CODE]
+		,s.[POSITION_DESCRIPTION]
+		,s.[PROCESS_LEVEL]
+		,s.[PROCESS_LEVEL_NAME]
+		,s.[ETHNICITY_CODE]
+		,s.[ETHNICITY_DESCRIPTION]
+		,s.[TAX_ADDRESS_1]
+		,s.[TAX_ADDRESS_2]
+		,s.[TAX_CITY]
+		,s.[TAX_STATE]
+		,s.[TAX_COUNTY]
+		,s.[TAX_COUNTRY_CODE]
+		,s.[TAX_COUNTRY_DESCRIPTION]
+		,s.[TAX_ZIP]
+		,s.[TAX_HOME_PHONE]
+		,s.[MAIL_ADDRESS_1]
+		,s.[MAIL_ADDRESS_2]
+		,s.[MAIL_CITY]
+		,s.[MAIL_STATE]
+		,s.[MAIL_COUNTY]
+		,s.[MAIL_COUNTRY_CODE]
+		,s.[MAIL_COUNTRY_DESCRIPTION]
+		,s.[MAIL_ZIP]
+		,s.[MAIL_HOME_PHONE]
+		,s.[GENDER]
+		,s.[GENDER_DESCRIPTION]
+		,s.[MARITAL_STATUS]
+		,s.[MARITAL_STATUS_DESCRIPTION]
+		,s.[SHIFT]
+		,s.[LOCATION_CODE]
+		,s.[LOCATION_DESCRIPTION]
+		,s.[ACTION_CODE]
+		,s.[ACTION_NUMBER]
+		,s.[ACTION_TYPE]
+		,s.[ACTION_DESCRIPTION]
+		,s.[REASON]
+		,s.[REASON_DESCRIPTION]
+		,s.[ACTION_DATE]
+		,s.[EFFECTIVE_DATE]
+		,s.[RELATIONSHIP_STATUS]
+		,s.[STATUS_DESCRIPTION]
+		,s.[HIRE_DATE]
+		,s.[REHIRE_DATE]
+		,s.[BIRTH_DATE]
+		,s.[SERVICE_DATE]
+		,s.[REVIEW_DATE]
+		,s.[REVIEW_CODE]
+		,s.[EMAIL_ADDRESS]
+		,s.[SUPERVISOR_CODE]
+		,s.[SUPERVISOR_FIRST_NAME]
+		,s.[SUPERVISOR_LAST_NAME]
+		,s.[SUPERVISOR_FULL_NAME]
+		,s.[SUPERVISOR_POSITION]
+		,s.[SUPERVISOR_EMP_ID]
+		,s.[SUPERVISOR_EMAIL]
+		,s.[SUPERVISOR_AHSN]
+		,s.[SUPERVISOR_SOCIAL_NUM]
+		,s.[INDIRECT_SUPERVISOR_CODE]
+		,s.[INDIRECT_SUPERVISOR_FIRST_NAME]
+		,s.[INDIRECT_SUPERVISOR_LAST_NAME]
+		,s.[INDIRECT_SUPERVISOR_FULL_NAME]
+		,s.[INDIRECT_SUPERVISOR_POSITION]
+		,s.[INDIRECT_SUPERVISOR_EMP_ID]
+		,s.[INDIRECT_SUPERVISOR_EMAIL]
+		,s.[INDIRECT_SUPERVISOR_AHSN]
+		,s.[INDIRECT_SUPERVISOR_SOCIAL_NUM]
+		,s.[PAY_RATE]
+		,s.[FTE]
+		,s.[TOTAL_FTE]
+		,s.[WORK_SCHEDULE]
+		,s.[WORK_SCHEDULE_DESCRIPTION]
+		,s.[FLSA_STATUS]
+		,s.[WORK_PHONE]
+		,s.[SCHEDULE]
+		,s.[SCHEDULE_DESCRIPTION]
+		,s.[PAY_PLAN_CODE]
+		,s.[PAY_PLAN_DESCRIPTION]
+		,s.[VETERAN]
+		,s.[GRADE]
+		,s.[GRADE_DESCRIPTION]
+		,s.[EEO_CATEGORY]
+		,s.[EEO_CATEGORY_DESCRIPTION]
+		,s.[PROCESS_DEPARTMENT]
+		,s.[FULL_OR_PART_TIME_FLAG]
+		,s.[TERMINATION_DATE]
+		,s.[EEO_GROUP_CODE]
+		,s.[EEO_GROUP_DESCRIPTION]
+		,s.[COMPENSATION_GROUPING]
+		,s.[KEY_POSITIONS_CODE]
+		,s.[KEY_POSITIONS_DESCRIPTION]
+		,s.[MANAGER_LEVEL_CODE]
+		,s.[MANAGER_LEVEL_DESCRIPTION]
+		,s.[REASON_2]
+		,s.[REASON_DESCRIPTION_2]
+		,s.[RELATIONSHIP_TO_ORGANIZATION]
+		,s.[IS_PRIMARY_SUPERVISOR]
+		,s.[ANNIVERSARY_DATE]
+		,s.[DISABILITY]
+		,s.[ELIGIBLE_FOR_REHIRE]
+		,s.[NORTON_TOTAL_YRS_DIRECT_EXP]
+		,s.[COST_CENTER]
+		,s.[COST_CENTER_DESCRIPTION]
+		,s.[NORTON_PENDING_YRS_EXP]
+		,s.[FACILITY]
+		,s.[FACILITY_NAME]
+		,s.[GenerationName]
+		,s.[CostCenterName]
+		,s.[SubfunctionName]
+		,s.[FunctionName]
+		,s.[SectionName]
+		,s.[EntityName]
+		,s.[DivisionName]
+		,s.[OrganizationName]
+		,ROW_NUMBER() OVER (
+			PARTITION BY s.EMPLOYEE_ID ORDER BY RowInsertDateTime ASC
+			) AS RowNum
+	FROM Snap AS s
+	INNER JOIN (
+		SELECT Employee_ID
+			,MAX(TERMINATION_DATE) AS MostRecentTerm
+		FROM [HRIS_Views].[Employee].[vwFactEmployeeCurrentViewAllEmployee_Snapshot]
+		WHERE TERMINATION_DATE IS NOT NULL
+		GROUP BY EMPLOYEE_ID
+		) AS mrt
+		ON mrt.EMPLOYEE_ID = s.EMPLOYEE_ID
+			AND mrt.MostRecentTerm = s.TERMINATION_DATE
+	WHERE 1 = 1
+		AND s.RowInsertDateTime < DATEADD(d, 1, @RunDate)
+		--AND s.RowInsertDateTime < DATEADD(d, 1, et.SystemDate)
+		--AND s.TERMINATION_DATE IS NOT NULL
+		--and s.Rownum = 1
+		--AND s.RowInsertDateTime < DATEADD(d, 1 @RunDate)
+	) AS s
+	ON s.EMPLOYEE_ID = et.Employee_ID
+		--AND s.TERMINATION_DATE = et.TerminationDate
+		AND rownum = 1
+INNER  JOIN LTMPROD.hcm.HRORGANIZATIONUNIT as HRO WITH (NOLOCK)
+	on HRO.HRORGANIZATIONUNIT=s.DEPARTMENT
+WHERE et.EventType = 'Termination'
+ AND (et.EffectiveDate >= @BeginDate AND  et.EffectiveDate < @ENDDATE )
+--AND PosKeyPosGroup <> 'Excluded Positions'
+AND et.Reasoncode NOT IN ('DEATH', 'ERROR', 'TEMPORARY', 'SEVERANCE')
+AND et.RelationshipToNHC = 'Employee'
+
+  ) as beht
+  WHERE RECORDTYPE = @RecordType
+  ORDER BY 
+  EffectiveDate ASC
+  --RECORDTYPE, EMPLOYEE_ID
+
